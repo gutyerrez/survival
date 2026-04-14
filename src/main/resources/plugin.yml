@@ -1,0 +1,6 @@
+name: Survival
+main: com.xspacy.survival.SurvivalSpigotPlugin
+version: 1.0.0
+load: POSTWORLD
+depend:
+  - Core
