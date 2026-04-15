@@ -15,17 +15,11 @@ data class TeleportRequest(
         TeleportRequestCache.CACHE.put(player.uniqueId, this)
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(SurvivalSpigotPlugin.instance, {
-            Bukkit.broadcastMessage("checking if can teleport")
-
             if (!canTeleport) {
-                Bukkit.broadcastMessage("can't teleport")
-
-                return@scheduleSyncDelayedTask
+                    return@scheduleSyncDelayedTask
             }
 
-            Bukkit.broadcastMessage("can teleport, teleporting...")
-
             player.teleport(to)
-        }, 3_000)
+        }, 3 * 20)
     }
 }

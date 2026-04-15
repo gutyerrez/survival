@@ -46,7 +46,7 @@ class HomeCommand : CustomCommand("home") {
                     if (homeName == "*") {
                         val homes = transaction {
                             HomesTable.select(
-                                HomesTable.location,
+                                HomesTable.name,
                                 HomesTable.public
                             ).where {
                                 HomesTable.userId eq ownerUser[UsersTable.id]
@@ -69,7 +69,7 @@ class HomeCommand : CustomCommand("home") {
                         return commandSender.spigot().sendMessage(ComponentBuilder("Esta home não existe.").color(ChatColor.RED).build())
                     }
 
-                    if (ownerUser[UsersTable.id] != commandSender.uniqueId && home[HomesTable.public] != true) {
+                    if (ownerUser[UsersTable.id] != commandSender.uniqueId && !home[HomesTable.public]) {
                         return commandSender.spigot().sendMessage(ComponentBuilder("Esta não é uma home pública.").color(ChatColor.RED).build())
                     }
 
@@ -78,6 +78,7 @@ class HomeCommand : CustomCommand("home") {
 
                 val home = transaction {
                     HomesTable.select(
+                        HomesTable.name,
                         HomesTable.location
                     ).where {
                         (HomesTable.name eq args[0]) and (HomesTable.userId eq commandSender.uniqueId)
@@ -108,7 +109,7 @@ class HomeCommand : CustomCommand("home") {
     private fun buildComponent(homes: List<ResultRow>, showPrivateHomes: Boolean = false): BaseComponent {
         val component = ComponentBuilder("Homes públicas (${homes.count { home -> home[HomesTable.public] == true }}): ").color(ChatColor.GOLD)
 
-        homes.filter { home -> home[HomesTable.public] == true }.forEachIndexed { index, resultRow ->
+        homes.filter { home -> home[HomesTable.public] }.forEachIndexed { index, resultRow ->
             val textComponent = TextComponent(resultRow[HomesTable.name])
 
             textComponent.color = ChatColor.WHITE
@@ -119,12 +120,12 @@ class HomeCommand : CustomCommand("home") {
 
             component.append(textComponent)
 
-            if (index + 1 != homes.size) {
+            if (index + 1 < homes.size) {
                 component.append(", ").color(ChatColor.WHITE)
             }
         }
 
-        if (homes.none { home -> home[HomesTable.public] == true }) {
+        if (homes.none { home -> home[HomesTable.public] }) {
             component.append("Nenhuma.").color(ChatColor.WHITE)
         }
 
@@ -134,7 +135,7 @@ class HomeCommand : CustomCommand("home") {
 
         component.append("\n").append("Homes privadas (${homes.count{ home -> home[HomesTable.public] == false}}): ").color(ChatColor.GOLD)
 
-        homes.filter { home -> home[HomesTable.public] == false }.forEachIndexed { index, resultRow ->
+        homes.filter { home -> !home[HomesTable.public] }.forEachIndexed { index, resultRow ->
             val textComponent = TextComponent(resultRow[HomesTable.name])
 
             textComponent.color = ChatColor.WHITE
@@ -145,12 +146,12 @@ class HomeCommand : CustomCommand("home") {
 
             component.append(textComponent)
 
-            if (index + 1 != homes.size) {
+            if (index + 1 < homes.size) {
                 component.append(", ").color(ChatColor.WHITE)
             }
         }
 
-        if (homes.none { home -> home[HomesTable.public] == false }) {
+        if (homes.none { home -> !home[HomesTable.public] }) {
             component.append("Nenhuma.").color(ChatColor.WHITE)
         }
 
@@ -167,6 +168,6 @@ class HomeCommand : CustomCommand("home") {
 
         teleportRequest.start()
 
-        commandSender.spigot().sendMessage(ComponentBuilder("Solicitação de teletransporte recebida! Teletransportando em 3 segundos...").color(ChatColor.GREEN).build())
+        commandSender.spigot().sendMessage(ComponentBuilder("Teletransportando para \"${home[HomesTable.name]}\" em 3 segundos...").color(ChatColor.GREEN).build())
     }
 }

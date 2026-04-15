@@ -4,12 +4,15 @@ import com.xspacy.core.CorePlugin
 import com.xspacy.core.plugin.CustomPlugin
 import com.xspacy.survival.chat.commands.GlobalCommand
 import com.xspacy.survival.chat.listeners.PlayerListeners
+import com.xspacy.survival.economy.commands.MoneyCommand
+import com.xspacy.survival.economy.schemas.UserBalance
 import com.xspacy.survival.homes.commands.DelHomeCommand
 import com.xspacy.survival.homes.commands.HomeCommand
 import com.xspacy.survival.homes.commands.PrivateHomeCommand
 import com.xspacy.survival.homes.commands.PublicHomeCommand
 import com.xspacy.survival.homes.commands.SetHomeCommand
 import com.xspacy.survival.homes.schemas.HomesTable
+import com.xspacy.survival.store.commands.StoreCommand
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -31,13 +34,15 @@ class SurvivalSpigotPlugin : CustomPlugin() {
         registerCommand(DelHomeCommand())
         registerCommand(PrivateHomeCommand())
         registerCommand(PublicHomeCommand())
+        registerCommand(StoreCommand())
+        registerCommand(MoneyCommand())
+
         registerListener(PlayerListeners(), this)
 
         transaction {
-            SchemaUtils.create(HomesTable)
-
-            MigrationUtils.statementsRequiredForDatabaseMigration(
-                HomesTable
+            SchemaUtils.create(
+                HomesTable,
+                UserBalance
             )
         }
     }
